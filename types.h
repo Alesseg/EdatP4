@@ -10,6 +10,8 @@
 
 #include <stdio.h>
 
+#define ERROR_VALUE -1
+
 /**
  * @brief ADT Boolean
  */

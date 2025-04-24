@@ -12,6 +12,8 @@
 
 #include "types.h"
 
+#define TAG_LENGTH 64
+
 /**
  * @brief Label to characterize the vertex state (to be used in P2)
  *
@@ -86,7 +88,7 @@ void vertex_free(void *v);
  *
  * @return  Returns the id of the given vertex, or -1 in case of error.
  */
-long vertex_getId(const Vertex *v);
+int vertex_getId(const Vertex *v);
 
 /**
  * @brief Gets the vertex tag.
@@ -116,7 +118,7 @@ Label vertex_getState(const Vertex *v);
  *
  * @return Returns OK or ERROR in case of error
  */
-Status vertex_setId(Vertex *v, const long id);
+Status vertex_setId(Vertex *v, const int id);
 
 /**
  * @brief Modifies the tag of a given vertex

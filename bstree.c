@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "vertex.h"
 
 /* START [_BSTNode] */
 typedef struct _BSTNode
@@ -250,9 +251,9 @@ BSTNode *_bst_find_min_rec(BSTNode *pn)
   if (!pn)
     return NULL;
 
-  if (!pn->left)
+  if (pn->left == NULL)
     return pn;
-  _bst_find_min_rec(pn->left);
+  return _bst_find_min_rec(pn->left);
 }
 
 BSTNode *_bst_find_max_rec(BSTNode *pn)
@@ -261,9 +262,9 @@ BSTNode *_bst_find_max_rec(BSTNode *pn)
   if (!pn)
     return NULL;
 
-  if (!pn->right)
+  if (pn->right == NULL)
     return pn;
-  _bst_find_max_rec(pn->right);
+  return _bst_find_max_rec(pn->right);
 }
 
 Bool _bst_contains_rec(BSTNode *pn, const void *elem, P_ele_cmp cmp_elem)
@@ -272,12 +273,12 @@ Bool _bst_contains_rec(BSTNode *pn, const void *elem, P_ele_cmp cmp_elem)
   if (!pn || !elem || !cmp_elem)
     return FALSE;
 
-  int cmp = cmp_elem(pn->info, elem);
+  int cmp = cmp_elem(elem, pn->info);
   if (cmp == 0)
     return TRUE;
-  if (cmp < 0)
+  else if (cmp < 0)
     return _bst_contains_rec(pn->left, elem, cmp_elem);
-  if (cmp > 0)
+  else
     return _bst_contains_rec(pn->right, elem, cmp_elem);
 }
 
@@ -286,48 +287,98 @@ BSTNode *_bst_insert_rec(BSTNode *pn, const void *elem, P_ele_cmp cmp_elem)
   BSTNode *new = NULL;
 
   /* Error control */
-  if (!elem || !cmp_elem)
+  if (!cmp_elem)
     return NULL;
 
-  if(!pn) {
+  if (!pn)
+  {
     /* Insert the element */
     if (!(new = _bst_node_new()))
       return NULL;
-    new->info = elem;
-    pn = new;
-    return pn;
+    new->info = (void *)elem;
+    return new;
   }
 
   /* Search the element */
-  int cmp = cmp_elem(pn->info, elem);
-  if (cmp == 0)
-    return pn;
+  int cmp = cmp_elem(elem, pn->info);
   if (cmp < 0)
-    return _bst_insert_rec(pn->left, elem, cmp_elem);
-  if (cmp > 0)
-    return _bst_insert_rec(pn->right, elem, cmp_elem);
+  {
+    if (!(pn->left = _bst_insert_rec(pn->left, elem, cmp_elem)))
+      return NULL;
+  }
+  else if (cmp > 0)
+  {
+    if (!(pn->right = _bst_insert_rec(pn->right, elem, cmp_elem)))
+      return NULL;
+  }
+  return pn;
 }
 
 BSTNode *_bst_remove_rec(BSTNode *pn, const void *elem, P_ele_cmp cmp_elem)
 {
+  BSTNode *aux = NULL;
+
+  if (!pn)
+    return NULL;
+
+  /* Compare the element with the node info */
+  if (cmp_elem(elem, pn->info) < 0)
+    pn->left = _bst_remove_rec(pn->left, elem, cmp_elem);
+  else if (cmp_elem(elem, pn->info) > 0)
+    pn->right = _bst_remove_rec(pn->right, elem, cmp_elem);
+  else if (cmp_elem(elem, pn->info) == 0)
+  {
+    if (!pn->left && !pn->right)
+    {
+      _bst_node_free(pn);
+      return NULL;
+    }
+    else if (!pn->left && pn->right)
+    {
+      aux = pn->right;
+      _bst_node_free(pn);
+      return pn->right;
+    }
+    else if (pn->left && !pn->right)
+    {
+      aux = pn->left;
+      _bst_node_free(pn);
+      return pn->left;
+    }
+    else if (pn->left && pn->right)
+    {
+      aux = _bst_find_min_rec(pn->right);
+      pn->info = aux->info;
+      pn->right = _bst_remove_rec(pn->right, aux->info, cmp_elem);
+    }
+  }
+  return pn;
 }
 
 void *tree_find_min(BSTree *tree)
 {
+  BSTNode *node = NULL;
+
   /* Error control */
   if (!tree)
     return NULL;
 
-  return _bst_find_min_rec(tree->root);
+  if (!(node = _bst_find_min_rec(tree->root)))
+    return NULL;
+  return node->info;
 }
 
 void *tree_find_max(BSTree *tree)
 {
+  BSTNode *node = NULL;
+
   /* Error control */
   if (!tree)
     return NULL;
 
-  return _bst_find_max_rec(tree->root);
+  if (!(node = _bst_find_max_rec(tree->root)))
+    return NULL;
+  return node->info;
 }
 
 Bool tree_contains(BSTree *tree, const void *elem)
@@ -345,11 +396,18 @@ Status tree_insert(BSTree *tree, const void *elem)
   if (!tree || !elem)
     return ERROR;
 
-  if (!_bst_insert_rec(tree->root, elem, tree->cmp_ele))
+  if (!(tree->root = _bst_insert_rec(tree->root, elem, tree->cmp_ele)))
     return ERROR;
+
   return OK;
 }
 
 Status tree_remove(BSTree *tree, const void *elem)
 {
+  /* Error control */
+  if (!tree || !elem)
+    return ERROR;
+
+  tree->root = _bst_remove_rec(tree->root, elem, tree->cmp_ele);
+  return OK;
 }
