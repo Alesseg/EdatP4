@@ -8,11 +8,10 @@
 #include "vertex.h"
 #include "search_queue.h"
 #include "file_utils.h"
-/**
- * @brief Data type to declare a SearchQueue variable.
- *
- **/
-typedef struct _SearchQueue SearchQueue;
+
+struct _SearchQueue {
+  BSTree *data;
+};
 
 /* START [_queue_new] */
 /**

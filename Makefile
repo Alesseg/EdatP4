@@ -61,6 +61,9 @@ list.o : list.c types.h list.h
 bstree.o : bstree.c bstree.h types.h
 	$(CC) -c $(CFLAGS) $(IFLAGS) -o $@ $<
 
+search_queue.o : search_queue.c search_queue.h types.h
+	$(CC) -c $(CFLAGS) $(IFLAGS) -o $@ $<
+
 p4_e1.o: p4_e1.c bstree.h types.h vertex.h
 	$(CC) -c -o $@ $< $(CFLAGS) $(IFLAGS)
 p4_e2b.o: p4_e2b.c graph.h vertex.h types.h file_utils.h stack.h queue.h
