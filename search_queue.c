@@ -1,10 +1,13 @@
-#ifndef SEARCHQUEUE_H
-#define SEARCHQUEUE_H
-
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
+#include "bstree.h"
 #include "types.h"
-
+#include "vertex.h"
+#include "search_queue.h"
+#include "file_utils.h"
 /**
  * @brief Data type to declare a SearchQueue variable.
  *
@@ -122,5 +125,3 @@ int search_queue_print(FILE *fp, const SearchQueue *q);
  * @return A pointer to the extracted element on success, NULL in case of error.
  * */
 void *search_queue_popBack(SearchQueue *q);
-
-#endif
