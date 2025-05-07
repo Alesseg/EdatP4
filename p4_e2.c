@@ -6,66 +6,66 @@
 #include "types.h"
 #include "file_utils.h"
 
+#define LINE_LEN 1024
+
 int main(int argc, char *argv[]) {
-  FILE *fin = NULL, *fout = NULL;
-  SearchQueue *sq = NULL;
-  void *str = NULL;
+    FILE *in = NULL, *out = NULL;
+    SearchQueue *q = NULL;
+    char line[LINE_LEN];
+    void *item = NULL;
 
-  if (argc != 3) {
-    fprintf(stderr, "Uso: %s <input_file> <output_file>\n", argv[0]);
-    return EXIT_FAILURE;
-  }
-
-  fin = fopen(argv[1], "r");
-  if (!fin) {
-    perror("Error al abrir el fichero de entrada");
-    return EXIT_FAILURE;
-  }
-
-  fout = fopen(argv[2], "w");
-  if (!fout) {
-    perror("Error al abrir el fichero de salida");
-    fclose(fin);
-    return EXIT_FAILURE;
-  }
-
-  // Crear la cola de búsqueda con funciones para strings
-  sq = search_queue_new(string_print, string_cmp);
-  if (!sq) {
-    fprintf(stderr, "Error al crear la SearchQueue\n");
-    fclose(fin);
-    fclose(fout);
-    return EXIT_FAILURE;
-  }
-
-  // Leer línea a línea e insertar en la cola
-  while ((str = string_init()) != NULL) {
-    if (string_read(fin, str) == ERROR) {
-      string_free(str);
-      break;
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <input_file> <output_file>\n", argv[0]);
+        return EXIT_FAILURE;
     }
 
-    if (search_queue_push(sq, str) == ERROR) {
-      fprintf(stderr, "Error al insertar en la cola\n");
-      string_free(str);
-      break;
-      }
+    in = fopen(argv[1], "r");
+    if (!in) {
+        perror("Couldn't open input file");
+        return EXIT_FAILURE;
     }
 
-    // Extraer en orden e imprimir
-  while (!search_queue_isEmpty(sq)) {
-    str = search_queue_pop(sq);
-    if (str) {
-      string_print(fout, str);
-      fprintf(fout, "\n");
-      string_free(str); // Libera cada string después de usar
-      }
+    out = fopen(argv[2], "w");
+    if (!out) {
+        perror("Couldn't open output file");
+        fclose(in);
+        return EXIT_FAILURE;
     }
 
-  // Liberar recursos
-  search_queue_free(sq);
-  fclose(fin);
-  fclose(fout);
+    q = search_queue_new(string_print, string_cmp);
+    if (!q) {
+        fprintf(stderr, "Couldn't create queue\n");
+        fclose(in);
+        fclose(out);
+        return EXIT_FAILURE;
+    }
 
-  return EXIT_SUCCESS;
+    while (read_line(in, line) != EOF) {
+        item = str2str(line);
+        if (!item) {
+            fprintf(stderr, "Error copying line\n");
+            break;
+        }
+
+        if (search_queue_push(q, item) == ERROR) {
+            fprintf(stderr, "Error adding to queue\n");
+            string_free(item);
+            break;
+        }
+    }
+
+    while (!search_queue_isEmpty(q)) {
+        item = search_queue_pop(q);
+        if (item) {
+            string_print(out, item);
+            fprintf(out, "\n");
+            string_free(item);
+        }
+    }
+
+    search_queue_free(q);
+    fclose(in);
+    fclose(out);
+
+    return EXIT_SUCCESS;
 }
