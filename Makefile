@@ -10,11 +10,11 @@ LDLIBS = -lqueue
 #
 LIBS = -lm -pthread
 
-EJS = p4_e1 p4_e2 p4_e3
+EJS = p4_e1  p4_e3
 ########################################################
 OBJECTSP4E1 = p4_e1.o bstree.o vertex.o
 OBJECTSP4E2 = p4_e2.o graph.o vertex.o stack.o queue.o
-OBJECTSP4E3 = p4_e3.o list.o file_utils.o
+OBJECTSP4E3 = p4_e3.o bstree.o search_queue.o file_utils.o
 ########################################################
 
 all: $(EJS)
@@ -68,7 +68,7 @@ p4_e1.o: p4_e1.c bstree.h types.h vertex.h
 	$(CC) -c -o $@ $< $(CFLAGS) $(IFLAGS)
 p4_e2.o: p4_e2.c search_queue.h types.h file_utils.h
 	$(CC) -c -o $@ $< $(CFLAGS) $(IFLAGS)
-p4_e3.o: p4_e3.c list.h types.h file_utils.h
+p4_e3.o: p4_e3.c bstree.h types.h vertex.h search_queue.h file_utils.h
 	$(CC) -c -o $@ $< $(CFLAGS) $(IFLAGS)
 
 include Makefile_ext

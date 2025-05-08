@@ -128,6 +128,7 @@ int _bst_inOrder_rec(BSTNode *pn, FILE *pf, P_ele_print print_ele)
 
   count += _bst_inOrder_rec(pn->left, pf, print_ele);
   count += print_ele(pf, pn->info);
+  fprintf(pf, " ");
   count += _bst_inOrder_rec(pn->right, pf, print_ele);
 
   return count;

@@ -30,4 +30,7 @@ run_e2: p4_e2
 run_e3: p4_e3
 	./p4_e3 grades.txt
 
+runv_e3: p4_e3
+	valgrind --leak-check=full --show-leak-kinds=all -s ./p4_e3 grades.txt
+
 # Remaining rules must be in main Makefile.

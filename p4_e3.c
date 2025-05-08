@@ -27,10 +27,10 @@ void search_queue_free_all(SearchQueue *sq, void free_elem(void *elem)) {
   }
 }
 
-int main(int argc, char const *argv()) {
+int main(int argc, char const *argv[]) {
   FILE *f = NULL;
-  float *grade = NULL, mean = 0, median = 0, elem = 0, lowest[3], *aux = NULL;
-  int i = 0, max = 0, count = 0;
+  float *grade = NULL, mean = 0, median = 0, elem = 0, *lowest[3];
+  int i = 0, max = 0, size = 0;
   SearchQueue *sq = NULL;
 
 
@@ -41,7 +41,7 @@ int main(int argc, char const *argv()) {
   }
 
   /* Opens the file */
-  if(!(f = fopen(argv(1), "r"))) {
+  if(!(f = fopen(argv[1], "r"))) {
     printf("Error while opening the file.\n");
     exit(EXIT_FAILURE);
   }
@@ -54,29 +54,36 @@ int main(int argc, char const *argv()) {
   }
 
   /* Read the grades from the file and get the size and mean of the search queue*/
-  while(fscanf(f, "%f", elem) == 1) {
+  if(fscanf(f, "%d", &size) != 1) {
+    printf("Error reading grades.\n");
+    search_queue_free_all(sq, float_free);
+    fclose(f);
+    exit(EXIT_FAILURE);
+  }
+  for(i = 0; i < size ;i++) {
+    fscanf(f, "%f", &elem);
     grade = float_init(elem);
     if(!grade) {
+      printf("Error reading grades.\n");
       search_queue_free_all(sq, float_free);
       fclose(f);
       exit(EXIT_FAILURE);
     }
     if(search_queue_push(sq, grade) == ERROR) {
+      printf("Error reading grades.\n");
       search_queue_free_all(sq, float_free);
       fclose(f);
       exit(EXIT_FAILURE);
     }
-    count++;
-    mean += *(float *)grade;
+    mean += elem;
   }
-  const int size = count;
-  mean /= 2;
-  float_free(grade);
+  mean /= size;
   fclose(f);
 
   /* Print grades in order */
   fprintf(stdout, "Ordered grades: ");
   if(search_queue_print(stdout, sq) < 0) {
+    printf("\nError printing ordered grades.\n");
     search_queue_free_all(sq, float_free);
     exit(EXIT_FAILURE);
   }
@@ -86,6 +93,11 @@ int main(int argc, char const *argv()) {
   /* Print the median */
   fprintf(stdout, "\nMedian: ");
   median = search_queue_median(sq, size);
+  if(median < 0) {
+    printf("\nError calculating median.\n");
+    search_queue_free_all(sq, float_free);
+    exit(EXIT_FAILURE);
+  }
   fprintf(stdout, "%.2f\n", median);
 
   /* Print the 3 lowest and highest grades */
@@ -95,24 +107,37 @@ int main(int argc, char const *argv()) {
   fprintf(stdout, "\n");
   fprintf(stdout, "Lowest grades: ");
   for(i = 0; i < max ;i++) {
-    lowest[i] = *(float *)search_queue_pop(sq);
-    fprintf(stdout, " %.2f", lowest[i]);
+    if(!(grade = search_queue_pop(sq))) {
+      printf("\nError extracting grade form the search queue.\n");
+      search_queue_free_all(sq, float_free);
+      exit(EXIT_FAILURE);
+    }
+    lowest[i] = grade;
+    fprintf(stdout, "%.2f ", *lowest[i]);
   }
   fprintf(stdout, "\n");
   /* Insert the lowest grades */
   for(i = 0; i < max ; i++) {
-    if(search_queue_push(sq, lowest + i) == ERROR) {
+    if(search_queue_push(sq, lowest[i]) == ERROR) {
+      printf("\nError pushing grade to the search queue.\n");
       search_queue_free_all(sq, float_free);
-      fclose(f);
       exit(EXIT_FAILURE);
     }
   }
 
   fprintf(stdout, "\n");
   fprintf(stdout,"Highest grades:");
-  for(i = 0; i < max ;i++)
-    fprintf(stdout, " %.2f", search_queue_popBack(sq));
+  for(i = 0; i < max ;i++) {
+    if(!(grade = (float *)search_queue_popBack(sq))) {
+      printf("\nError extracting grade form the search queue.\n");
+      search_queue_free_all(sq, float_free);
+      exit(EXIT_FAILURE);
+    }
+    fprintf(stdout, " %.2f", *grade);
+    float_free(grade);
+  }
   fprintf(stdout, "\n");
+
 
   /* Free all the allocated memory */
   search_queue_free_all(sq, float_free);
@@ -127,6 +152,11 @@ float search_queue_median(SearchQueue *sq, int size) {
   int i = 0;
   float median = -1;
 
+  /* Create and auxiliar search queue */
+  if(!(aux_sq = search_queue_new(float_print, float_cmp))) {
+    return median;
+  }
+
   /* Extract half of the elements form the original search queue and push them to the auxiliary one */
   for(i = 0; i < size/2 ;i++) {
     if(!(elem = search_queue_pop(sq))) {
@@ -135,6 +165,7 @@ float search_queue_median(SearchQueue *sq, int size) {
     }
     if(search_queue_push(aux_sq, elem) == ERROR) {
       search_queue_free_all(aux_sq, float_free);
+      if(elem) float_free(elem);
       return median;
     }
   }
@@ -154,11 +185,13 @@ float search_queue_median(SearchQueue *sq, int size) {
   if(imp) {
     if(search_queue_push(sq, imp) == ERROR) {
       search_queue_free_all(aux_sq, float_free);
+      float_free(imp);
       return -1;
     }
   }
   if(search_queue_push(sq, elem) == ERROR) {
     search_queue_free_all(aux_sq, float_free);
+    float_free(elem);
     return -1;
   }
   while(search_queue_isEmpty(aux_sq) == FALSE) {
@@ -168,9 +201,13 @@ float search_queue_median(SearchQueue *sq, int size) {
     }
     if(search_queue_push(sq, elem) == ERROR) {
       search_queue_free_all(aux_sq, float_free);
+      float_free(elem);
       return -1;
     }
   }
+
+  /* Free the memory of the auxiliar search queue */
+  search_queue_free_all(aux_sq, float_free);
 
   return median;
 }

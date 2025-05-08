@@ -134,7 +134,7 @@ int string_cmp(const void *c1, const void *c2) {
   if (!c1 || !c2)
     return 0;
 
-  return (strcmp(*(char **)c1, *(char **)c2));
+  return (strcmp((char *)c1, (char *)c2));
 }
 
 void string_free(void *src) { free((char *)src); }
