@@ -61,7 +61,12 @@ int main(int argc, char const *argv[]) {
     exit(EXIT_FAILURE);
   }
   for(i = 0; i < size ;i++) {
-    fscanf(f, "%f", &elem);
+    if(fscanf(f, "%f", &elem) != 1) {
+    printf("Error reading grades.\n");
+    search_queue_free_all(sq, float_free);
+    fclose(f);
+    exit(EXIT_FAILURE);
+  }
     grade = float_init(elem);
     if(!grade) {
       printf("Error reading grades.\n");
@@ -83,7 +88,7 @@ int main(int argc, char const *argv[]) {
   /* Print grades in order */
   fprintf(stdout, "Ordered grades: ");
   if(search_queue_print(stdout, sq) < 0) {
-    printf("\nError printing ordered grades.\n");
+    printf("Error printing ordered grades.\n");
     search_queue_free_all(sq, float_free);
     exit(EXIT_FAILURE);
   }
@@ -94,7 +99,7 @@ int main(int argc, char const *argv[]) {
   fprintf(stdout, "\nMedian: ");
   median = search_queue_median(sq, size);
   if(median < 0) {
-    printf("\nError calculating median.\n");
+    printf("Error calculating median.\n");
     search_queue_free_all(sq, float_free);
     exit(EXIT_FAILURE);
   }
