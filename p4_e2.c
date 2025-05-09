@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    while (read_line(in, line) != EOF) {
+    while (read_line(in, line) != 0) {
         item = str2str(line);
         if (!item) {
             fprintf(stderr, "Error copying line\n");
