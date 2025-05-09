@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 
         if (search_queue_push(q, item) == ERROR) {
             fprintf(stderr, "Error adding to queue\n");
-            string_free(item);
+            free(item);
             break;
         }
     }
@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
         if (item) {
             string_print(out, item);
             fprintf(out, "\n");
-            string_free(item);
+            free(item);
         }
     }
 

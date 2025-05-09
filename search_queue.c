@@ -104,3 +104,10 @@ void *search_queue_popBack(SearchQueue *q) {
   }
   return max;
 }
+
+Bool search_queue_contains(const SearchQueue *q, const void *ele) {
+  if (!q || !ele) {
+    return FALSE;
+  }
+  return tree_contains(q->data, ele);
+}
