@@ -4,16 +4,15 @@ CFLAGS = -Wall -ggdb -pedantic
 CFLAGSOPT = -O2
 IFLAGS = -I./
 LDFLAGS = -L./
-LDLIBS = -lqueue
 
 # -lm enlaza la biblioteca matematica, -pthread enlaza la biblioteca de hilos
 #
 LIBS = -lm -pthread
 
-EJS = p4_e1  p4_e3
+EJS = p4_e1 p4_e2 p4_e3
 ########################################################
 OBJECTSP4E1 = p4_e1.o bstree.o vertex.o
-OBJECTSP4E2 = p4_e2.o graph.o vertex.o stack.o queue.o
+OBJECTSP4E2 = p4_e2.o search_queue.o bstree.o file_utils.o
 OBJECTSP4E3 = p4_e3.o bstree.o search_queue.o file_utils.o
 ########################################################
 
@@ -30,7 +29,7 @@ all: $(EJS)
 p4_e1: $(OBJECTSP4E1)
 	$(CC) -o $@ $^
 p4_e2: $(OBJECTSP4E2)
-	$(CC) -o $@ $^ $(LDFLAGS) $(LDLIBS) $(LIBS)
+	$(CC) -o $@ $^ $(LDFLAGS)
 p4_e3: $(OBJECTSP4E3)
 	$(CC) -o $@ $^ $(LDFLAGS)
 

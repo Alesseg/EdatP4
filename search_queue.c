@@ -5,7 +5,6 @@
 
 #include "bstree.h"
 #include "types.h"
-#include "vertex.h"
 #include "search_queue.h"
 #include "file_utils.h"
 
