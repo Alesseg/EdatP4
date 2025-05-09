@@ -74,11 +74,16 @@ int main(int argc, char const *argv[]) {
       fclose(f);
       exit(EXIT_FAILURE);
     }
-    if(search_queue_push(sq, grade) == ERROR) {
-      printf("Error reading grades.\n");
-      search_queue_free_all(sq, float_free);
-      fclose(f);
-      exit(EXIT_FAILURE);
+    if(search_queue_contains(sq, grade) == FALSE) {
+      if (search_queue_push(sq, grade) == ERROR)
+      {
+        printf("Error reading grades.\n");
+        search_queue_free_all(sq, float_free);
+        fclose(f);
+        exit(EXIT_FAILURE);
+      }
+    } else {
+      float_free(grade);
     }
     mean += elem;
   }
