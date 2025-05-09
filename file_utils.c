@@ -142,7 +142,7 @@ void string_free(void *src) { free((char *)src); }
 int string_print(FILE *pf, const void *src) {
   if (!pf || !src)
     return -1;
-  return fprintf(pf, "%s", (char *)src);
+  return fprintf(pf, "%s\n", (char *)src);
 }
 
 //---------------------------------------------------------
