@@ -123,4 +123,13 @@ int search_queue_print(FILE *fp, const SearchQueue *q);
  * */
 void *search_queue_popBack(SearchQueue *q);
 
+/**
+ * @brief Check if the search queue contain the element
+ * 
+ * @param q a pointer to the searhc queue
+ * @param ele a pointer to the element
+ * @return Bool TRUE, FALSE in case of error
+ */
+Bool search_queue_contains(const SearchQueue *q, const void *ele);
+
 #endif

@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
       break;
     }
 
-    if(search_queue_contain(q, item) == FALSE) {
+    if(search_queue_contains(q, item) == FALSE) {
       if (search_queue_push(q, item) == ERROR)
       {
         fprintf(stderr, "Error adding to queue\n");
